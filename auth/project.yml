@@ -1,0 +1,8 @@
+packages:
+  - name: auth
+    functions:
+      - name: sign_up
+        runtime: python:default
+        web: true
+        environment:
+          POSTGRES_STRING: "${POSTGRES_STRING}"
