@@ -1,0 +1,9 @@
+packages:
+  - name: controller
+    functions:
+      - name: main
+        runtime: python:default
+        web: true
+        environment:
+          POSTGRES_STRING: "${POSTGRES_STRING}"
+          SECRET_KEY: "${SECRET_KEY}"
