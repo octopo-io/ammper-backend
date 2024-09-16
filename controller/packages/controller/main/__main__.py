@@ -6,7 +6,9 @@ from controllers import AVAILABLE_CONTROLLERS
 def main(args: dict, context: object) -> dict:
     controller = args.get('controller')
     action = args.get('action')
+    jwt = args.get('http', {}).get('headers', {}).get('authorization', '').replace('JWT ', '')
     data = args.get('data', {})
+    data['jwt'] = jwt
 
     response = {
         'body': {

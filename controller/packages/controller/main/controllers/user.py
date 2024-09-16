@@ -32,7 +32,7 @@ class UserController(Controller):
             return HTTPStatus.BAD_REQUEST, {'error': 'user_already_exists'}
 
         return HTTPStatus.CREATED, {
-            'token': generate_jwt({'email': email}),
+            'token': generate_jwt({'email': email, 'id': user.id}),
         }
 
     def _login_user(self) -> Tuple[int, Optional[dict]]:

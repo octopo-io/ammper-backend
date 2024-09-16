@@ -7,3 +7,6 @@ packages:
         environment:
           POSTGRES_STRING: "${POSTGRES_STRING}"
           SECRET_KEY: "${SECRET_KEY}"
+          BELVO_SECRET_ID: "${BELVO_SECRET_ID}"
+          BELVO_SECRET_KEY: "${BELVO_SECRET_KEY}"
+          BELVO_BASE_URL: "${BELVO_BASE_URL}"

@@ -2,3 +2,6 @@ import os
 
 POSTGRES_STRING = os.getenv('POSTGRES_STRING')
 SECRET_KEY = os.getenv('SECRET_KEY')
+BELVO_BASE_URL = os.getenv('BELVO_BASE_URL')
+BELVO_SECRET_ID = os.getenv('BELVO_SECRET_ID')
+BELVO_SECRET_KEY = os.getenv('BELVO_SECRET_KEY')
