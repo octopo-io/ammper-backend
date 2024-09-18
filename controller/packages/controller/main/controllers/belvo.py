@@ -15,7 +15,9 @@ from utils.jwt import get_jwt_data
 
 class BelvoController(Controller):
     ACTIONS = [
-        'get_institutions'
+        'get_institutions',
+        'get_account',
+        'get_transactions',
     ]
     user_data = {}
 
@@ -29,6 +31,10 @@ class BelvoController(Controller):
 
         if not status:
             return status, result
+
+        if self.data.get('debug'):
+            self.user_data = {'id': 19, 'email': 'octopo1@octopo.cl'}
+            return True, None
 
         if data := get_jwt_data(self.data.get('jwt')):
             self.user_data = data
@@ -52,45 +58,49 @@ class BelvoController(Controller):
         """
         Crea un enlace de acceso a una institución financiera.
 
-        :return: Código de estado HTTP y datos de respuesta.
+        :return: Link creado
         """
         link_dao = LinkDAO()
         institution = self.data.get('institution')
         user_id = self.user_data.get('id')
 
         if link := link_dao.get_by_institution_and_user_id(institution, user_id):
-            return HTTPStatus.OK, {
-                'link_id': link.link_id
-            }
+            return True, link
 
         response = requests.post(f'{BELVO_BASE_URL}/links/', json={
             'institution': institution,
             'username': 'bnk100',
             'password': 'full',
             'access_mode': 'recurrent',
-            'external_id': user_id
+            'external_id': f'external_{user_id}'
         }, headers=self._headers)
 
         data = response.json()
-        link_dao.create(
+
+        if response.status_code != HTTPStatus.CREATED:
+            return False, data
+
+        link = link_dao.create(
             link_id=data.get('id'),
             institution=institution,
             user_id=user_id
         )
         link_dao.close_session()
 
-        return HTTPStatus.CREATED, {
-            'link_id': data.get('id')
-        }
+        return True, link
 
-    def _get_accounts(self):
+    def _get_account(self):
         """
         Obtiene las cuentas de un usuario.
 
         :return: Código de estado HTTP y datos de respuesta.
         """
-        link_id = self.data.get('link_id')
-        response = requests.get(f'{BELVO_BASE_URL}/accounts/?link={link_id}', headers=self._headers)
+        status, result = self._get_or_create_link()
+
+        if not status:
+            return HTTPStatus.BAD_REQUEST, result
+
+        response = requests.get(f'{BELVO_BASE_URL}/accounts/?link={result.link_id}', headers=self._headers)
         return HTTPStatus.OK, response.json()
 
     def _get_transactions(self):
@@ -99,9 +109,16 @@ class BelvoController(Controller):
 
         :return: Código de estado HTTP y datos de respuesta.
         """
+        status, result = self._get_or_create_link()
+
+        if not status:
+            return HTTPStatus.BAD_REQUEST, result
+
         account_id = self.data.get('account_id')
-        link_id = self.data.get('link_id')
-        response = requests.get(f'{BELVO_BASE_URL}/transactions/?account={account_id}&link={link_id}', headers=self._headers)
+        response = requests.get(
+            f'{BELVO_BASE_URL}/transactions/?account={account_id}&link={result.link_id}',
+            headers=self._headers
+        )
         return HTTPStatus.OK, response.json()
 
     @property

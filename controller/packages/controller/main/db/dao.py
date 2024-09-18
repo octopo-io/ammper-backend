@@ -21,7 +21,7 @@ class DAO:
 
 
 class LinkDAO(DAO):
-    def create(self, user_id: int, link_id: str, institution: str) -> None:
+    def create(self, user_id: int, link_id: str, institution: str) -> UserLinks:
         """
         Crea un nuevo enlace de usuario.
 

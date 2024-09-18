@@ -54,5 +54,5 @@ class UserController(Controller):
             return HTTPStatus.BAD_REQUEST, {'error': 'invalid_password'}
 
         return HTTPStatus.OK, {
-            'token': generate_jwt({'email': email}),
+            'token': generate_jwt({'email': email, 'id': user.id}),
         }
